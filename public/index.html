@@ -19,175 +19,183 @@
       overflow: hidden;
     }
 
-    /* ─── Header ─────────────────────────────────────────────────── */
+    /* ─── Top bar ────────────────────────────────────────────────── */
     header {
       background: #111;
       border-bottom: 1px solid #222;
-      padding: 10px 16px;
+      padding: 0 16px;
+      height: 48px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
       flex-shrink: 0;
-      z-index: 200;
+      z-index: 300;
+      position: relative;
     }
 
     header h1 {
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 700;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
       color: #fff;
-      flex-shrink: 0;
     }
 
-    .header-right {
+    .header-actions {
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
-    .filter-toggle {
+    .filter-btn {
       background: #1d1d1d;
       border: 1px solid #444;
       color: #ccc;
-      padding: 5px 12px;
-      border-radius: 4px;
+      padding: 5px 14px;
+      border-radius: 20px;
       cursor: pointer;
       font-size: 0.8rem;
-      height: 30px;
-      white-space: nowrap;
+      height: 32px;
+      touch-action: manipulation;
     }
-    .filter-toggle.active { border-color: #4a9eff; color: #4a9eff; }
+    .filter-btn.active { border-color: #4a9eff; color: #4a9eff; background: #0d1e2e; }
 
-    .stats-bar {
-      font-size: 0.7rem;
-      color: #555;
-      white-space: nowrap;
-      display: none;
-    }
+    .stats-bar { font-size: 0.68rem; color: #555; }
 
-    /* ─── Filter panel ───────────────────────────────────────────── */
+    /* ─── Filter panel — drops down below header ─────────────────── */
     #filter-panel {
       background: #111;
       border-bottom: 1px solid #222;
-      padding: 10px 16px;
+      padding: 14px 16px;
       display: none;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
+      flex-direction: column;
+      gap: 10px;
       flex-shrink: 0;
-      z-index: 200;
+      z-index: 290;
     }
     #filter-panel.open { display: flex; }
 
-    .filters input, .filters select,
-    #filter-panel input, #filter-panel select {
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .filter-label { font-size: 0.75rem; color: #888; white-space: nowrap; }
+
+    #filter-panel input,
+    #filter-panel select {
       background: #1a1a1a;
       border: 1px solid #333;
       color: #e0e0e0;
-      padding: 5px 10px;
-      border-radius: 4px;
-      font-size: 0.8rem;
-      height: 30px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      height: 36px;
+    }
+    #filter-panel input[type="date"]   { width: 140px; }
+    #filter-panel input[type="search"] { flex: 1; min-width: 0; }
+    #filter-panel select               { flex: 1; min-width: 110px; }
+
+    .filter-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      padding-top: 2px;
     }
 
-    #filter-panel input[type="date"] { width: 130px; }
-    #filter-panel input[type="search"] { width: 100%; }
-    #filter-panel select { min-width: 120px; flex: 1; }
-
-    .filter-group { display: flex; align-items: center; gap: 5px; }
-    .filter-label { font-size: 0.75rem; color: #888; white-space: nowrap; }
-
-    .refresh-btn {
-      background: #1d1d1d;
-      border: 1px solid #444;
-      color: #ccc;
-      padding: 5px 12px;
-      border-radius: 4px;
+    .apply-btn, .dismiss-btn {
+      padding: 7px 18px;
+      border-radius: 6px;
+      font-size: 0.85rem;
       cursor: pointer;
-      font-size: 0.8rem;
-      height: 30px;
+      border: none;
+      touch-action: manipulation;
     }
-    .refresh-btn:hover { background: #2a2a2a; }
+    .apply-btn   { background: #4a9eff; color: #fff; }
+    .dismiss-btn { background: #1d1d1d; border: 1px solid #444; color: #aaa; }
 
-    /* ─── Map fills the rest ─────────────────────────────────────── */
-    .main {
-      flex: 1;
-      position: relative;
-      overflow: hidden;
-    }
+    /* ─── Map ────────────────────────────────────────────────────── */
+    .main { flex: 1; position: relative; overflow: hidden; }
 
-    #map {
-      width: 100%;
-      height: 100%;
-    }
+    #map { width: 100%; height: 100%; }
 
-    /* ─── Bottom sheet (mobile) ──────────────────────────────────── */
+    /* ─── Bottom sheet ───────────────────────────────────────────── */
     #sheet {
       position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 65vh;
+      bottom: 0; left: 0; right: 0;
+      height: 72vh;
       background: #0f0f0f;
       border-top: 1px solid #2a2a2a;
       border-radius: 14px 14px 0 0;
       z-index: 400;
       display: flex;
       flex-direction: column;
-      transform: translateY(calc(100% - 52px));
+      transform: translateY(calc(100% - 54px));
       transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      will-change: transform;
     }
+    #sheet.open { transform: translateY(0); }
 
-    #sheet.open  { transform: translateY(0); }
-
-    .sheet-handle-bar {
+    /* The visible peek strip — entire thing is the tap target */
+    #sheet-peek {
       flex-shrink: 0;
+      height: 54px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 14px;
-      height: 44px;
+      padding: 0 16px;
       cursor: pointer;
-      user-select: none;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
+    #sheet-peek:active { background: rgba(255,255,255,0.03); }
 
-    .sheet-handle-bar::before {
-      content: '';
-      position: absolute;
-      left: 50%;
-      top: 8px;
-      transform: translateX(-50%);
-      width: 36px;
-      height: 4px;
-      background: #333;
+    .sheet-pill {
+      width: 36px; height: 4px;
+      background: #3a3a3a;
       border-radius: 2px;
+      position: absolute;
+      top: 8px; left: 50%;
+      transform: translateX(-50%);
     }
 
     #sheet-count {
-      font-size: 0.8rem;
-      color: #888;
-      pointer-events: none;
+      font-size: 0.85rem;
+      color: #ccc;
+      font-weight: 500;
     }
+
+    .sheet-chevron {
+      font-size: 1rem;
+      color: #555;
+      transition: transform 0.3s;
+    }
+    #sheet.open .sheet-chevron { transform: rotate(180deg); }
 
     #sheet-back {
       background: none;
       border: none;
       color: #4a9eff;
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       cursor: pointer;
       padding: 4px 0;
       display: none;
+      touch-action: manipulation;
     }
 
-    .sheet-content {
+    /* Two panels slide horizontally: list → detail */
+    .sheet-body {
       flex: 1;
       overflow: hidden;
       position: relative;
     }
 
-    /* Two panels that slide: list and detail */
     .sheet-panels {
       display: flex;
       width: 200%;
@@ -200,136 +208,78 @@
       width: 50%;
       height: 100%;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     /* ─── Event cards ────────────────────────────────────────────── */
     .event-card {
-      padding: 12px 14px;
+      padding: 12px 16px;
       border-bottom: 1px solid #1a1a1a;
       cursor: pointer;
-      transition: background 0.1s;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
-    .event-card:hover  { background: #161616; }
-    .event-card.active { background: #1a1a2e; border-left: 3px solid #4a9eff; }
+    .event-card:active  { background: #161616; }
+    .event-card.active  { background: #1a1a2e; border-left: 3px solid #4a9eff; }
 
-    .event-title {
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: #eee;
-      margin-bottom: 3px;
-      line-height: 1.3;
-    }
-
-    .event-meta {
-      font-size: 0.75rem;
-      color: #666;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
+    .event-title { font-size: 0.9rem; font-weight: 600; color: #eee; margin-bottom: 3px; line-height: 1.3; }
+    .event-meta  { font-size: 0.75rem; color: #666; display: flex; flex-direction: column; gap: 2px; }
     .venue-name  { color: #888; }
     .event-date  { color: #557a9f; }
 
-    .event-tags {
-      display: flex;
-      gap: 4px;
-      flex-wrap: wrap;
-      margin-top: 5px;
-    }
-
+    .event-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 5px; }
     .tag {
-      background: #1e1e1e;
-      border: 1px solid #2a2a2a;
-      color: #777;
-      padding: 2px 7px;
-      border-radius: 3px;
-      font-size: 0.7rem;
+      background: #1e1e1e; border: 1px solid #2a2a2a;
+      color: #777; padding: 2px 7px; border-radius: 3px; font-size: 0.7rem;
     }
     .tag.attending { color: #4a9eff; border-color: #1a3a5c; background: #0d1e2e; }
 
-    .empty-state {
-      padding: 28px 16px;
-      text-align: center;
-      color: #444;
-      font-size: 0.8rem;
-      line-height: 1.6;
-    }
+    .empty-state { padding: 32px 16px; text-align: center; color: #444; font-size: 0.8rem; line-height: 1.7; }
 
-    /* ─── Detail panel ───────────────────────────────────────────── */
-    .detail-content { padding: 14px; }
-
-    .detail-flyer {
-      width: 100%;
-      border-radius: 6px;
-      margin-bottom: 12px;
-    }
-
-    .detail-title {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 10px;
-      line-height: 1.3;
-    }
-
-    .detail-field {
-      font-size: 0.8rem;
-      color: #888;
-      margin-bottom: 7px;
-      line-height: 1.5;
-    }
+    /* ─── Detail content ─────────────────────────────────────────── */
+    .detail-inner { padding: 14px 16px 32px; }
+    .detail-flyer { width: 100%; border-radius: 6px; margin-bottom: 12px; }
+    .detail-title { font-size: 1.05rem; font-weight: 700; color: #fff; margin-bottom: 10px; line-height: 1.3; }
+    .detail-field { font-size: 0.8rem; color: #888; margin-bottom: 7px; line-height: 1.6; }
     .detail-field strong { color: #bbb; }
-
-    .detail-link {
-      display: inline-block;
-      margin-top: 10px;
-      color: #4a9eff;
-      font-size: 0.85rem;
-      text-decoration: none;
-    }
+    .detail-link  { display: inline-block; margin-top: 10px; color: #4a9eff; font-size: 0.85rem; text-decoration: none; }
     .detail-link:hover { text-decoration: underline; }
 
-    /* ─── Leaflet overrides ──────────────────────────────────────── */
-    .leaflet-popup-content-wrapper {
-      background: #111;
-      color: #e0e0e0;
-      border: 1px solid #2a2a2a;
-      border-radius: 4px;
-    }
+    /* ─── Leaflet ────────────────────────────────────────────────── */
+    .leaflet-popup-content-wrapper { background: #111; color: #e0e0e0; border: 1px solid #2a2a2a; border-radius: 4px; }
     .leaflet-popup-tip { background: #111; }
-    .popup-title  { font-weight: 700; font-size: 0.85rem; margin-bottom: 4px; }
-    .popup-count  { font-size: 0.75rem; color: #888; }
+    .popup-title { font-weight: 700; font-size: 0.85rem; margin-bottom: 4px; }
+    .popup-count { font-size: 0.75rem; color: #888; }
 
-    /* ─── Scrollbar ──────────────────────────────────────────────── */
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: #0a0a0a; }
     ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
 
-    /* ─── Desktop (768px+) — restore sidebar layout ──────────────── */
+    /* ─── Desktop (768px+) ───────────────────────────────────────── */
     @media (min-width: 768px) {
-      header {
-        justify-content: flex-start;
-        gap: 16px;
-      }
+      header { height: 44px; }
 
-      .header-right { display: contents; }
+      .filter-btn  { display: none; }
+      .stats-bar   { display: block; }
 
-      .filter-toggle { display: none; }
-
-      .stats-bar { display: block; margin-left: auto; }
-
-      /* Show filters inline in header */
+      /* Filters always visible as a bar */
       #filter-panel {
-        display: contents !important;
+        display: flex !important;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-bottom: 1px solid #222;
       }
-      #filter-panel input,
-      #filter-panel select { flex: unset; }
-      #filter-panel input[type="search"] { width: 160px; }
+      .filter-row   { display: contents; }
+      .filter-actions { display: none; }
       #filter-panel input[type="date"]   { width: 130px; }
-      #filter-panel select               { min-width: 120px; }
+      #filter-panel input[type="search"] { width: 160px; flex: unset; }
+      #filter-panel select               { min-width: 120px; flex: unset; }
+      #filter-panel input, #filter-panel select { height: 30px; font-size: 0.8rem; }
 
-      /* Restore sidebar */
+      /* Restore sidebar layout */
       .main { display: flex; }
 
       #sheet {
@@ -345,58 +295,39 @@
         z-index: auto;
       }
 
-      .sheet-handle-bar {
-        pointer-events: none;
-        height: 36px;
-        padding: 0 12px;
-      }
-      .sheet-handle-bar::before { display: none; }
+      #sheet-peek { pointer-events: none; height: 36px; }
+      .sheet-pill { display: none; }
+      .sheet-chevron { display: none; }
       #sheet-back { display: none !important; }
 
-      .sheet-content { overflow: hidden; }
-
-      .sheet-panels {
-        width: 100%;
-        transition: none;
-      }
+      .sheet-body { overflow: hidden; }
+      .sheet-panels { width: 100%; transition: none; }
       .sheet-panels.show-detail { transform: none; }
-
       .sheet-panel { width: 100%; }
 
-      /* On desktop the detail goes in the floating panel, not the sheet */
+      /* Floating detail panel */
       #detail-panel {
         position: absolute;
-        top: 70px;
-        right: 16px;
+        top: 10px; right: 16px;
         width: 320px;
         background: #111;
         border: 1px solid #2a2a2a;
         border-radius: 6px;
         z-index: 1000;
-        max-height: calc(100vh - 90px);
+        max-height: calc(100vh - 30px);
         overflow-y: auto;
         display: none;
         box-shadow: 0 4px 20px rgba(0,0,0,0.6);
       }
       #detail-panel.visible { display: block; }
-
       .detail-close {
-        position: sticky;
-        top: 0;
-        background: #111;
-        padding: 8px 12px;
-        border-bottom: 1px solid #1e1e1e;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        position: sticky; top: 0; background: #111;
+        padding: 8px 12px; border-bottom: 1px solid #1e1e1e;
+        display: flex; justify-content: space-between; align-items: center;
       }
       .detail-close button {
-        background: none;
-        border: none;
-        color: #666;
-        cursor: pointer;
-        font-size: 1.1rem;
-        padding: 0 4px;
+        background: none; border: none; color: #666;
+        cursor: pointer; font-size: 1.1rem; padding: 0 4px;
       }
     }
   </style>
@@ -405,39 +336,49 @@
 
 <header>
   <h1>RA MAP</h1>
-  <div class="header-right">
-    <div id="filter-panel">
-      <div class="filter-group">
-        <span class="filter-label">From</span>
-        <input type="date" id="filter-from">
-      </div>
-      <div class="filter-group">
-        <span class="filter-label">To</span>
-        <input type="date" id="filter-to">
-      </div>
-      <div class="filter-group">
-        <span class="filter-label">Area</span>
-        <select id="filter-area"><option value="">All areas</option></select>
-      </div>
-      <div class="filter-group">
-        <span class="filter-label">Genre</span>
-        <select id="filter-genre"><option value="">All genres</option></select>
-      </div>
-      <input type="search" id="filter-search" placeholder="Search title / lineup / venue">
-      <button class="refresh-btn" onclick="load()">Refresh</button>
-    </div>
-    <button class="filter-toggle" id="filter-btn" onclick="toggleFilters()">Filters</button>
+  <div class="header-actions">
+    <button class="filter-btn" id="filter-btn" onclick="toggleFilters()">Filters</button>
     <div class="stats-bar" id="stats-bar"></div>
   </div>
 </header>
 
+<div id="filter-panel">
+  <div class="filter-row">
+    <div class="filter-group">
+      <span class="filter-label">From</span>
+      <input type="date" id="filter-from">
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">To</span>
+      <input type="date" id="filter-to">
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Area</span>
+      <select id="filter-area"><option value="">All areas</option></select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Genre</span>
+      <select id="filter-genre"><option value="">All genres</option></select>
+    </div>
+  </div>
+  <div class="filter-row">
+    <input type="search" id="filter-search" placeholder="Search title / lineup / venue">
+  </div>
+  <div class="filter-actions">
+    <button class="dismiss-btn" onclick="closeFilters()">Dismiss</button>
+    <button class="apply-btn" onclick="load(); closeFilters()">Apply</button>
+  </div>
+</div>
+
 <div class="main">
   <div id="sheet">
-    <div class="sheet-handle-bar" onclick="toggleSheet()">
+    <div id="sheet-peek" onclick="toggleSheet()">
+      <div class="sheet-pill"></div>
       <span id="sheet-count">Loading…</span>
       <button id="sheet-back" onclick="backToList(event)">← List</button>
+      <span class="sheet-chevron">▲</span>
     </div>
-    <div class="sheet-content">
+    <div class="sheet-body">
       <div class="sheet-panels" id="sheet-panels">
         <div class="sheet-panel" id="event-list"></div>
         <div class="sheet-panel" id="detail-content-mobile"></div>
@@ -447,13 +388,13 @@
   <div id="map"></div>
 </div>
 
-<!-- Desktop-only detail panel -->
+<!-- Desktop-only floating detail panel -->
 <div id="detail-panel">
   <div class="detail-close">
     <span id="detail-venue-name" style="font-size:0.75rem;color:#666"></span>
     <button onclick="closeDetail()">✕</button>
   </div>
-  <div class="detail-content" id="detail-content-desktop"></div>
+  <div id="detail-content-desktop"></div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -467,49 +408,51 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
 let allEvents = [];
 let venueMarkers = {};
 let activeEventId = null;
-let markerLayer = L.layerGroup().addTo(map);
+const markerLayer = L.layerGroup().addTo(map);
 
 function isMobile() { return window.innerWidth < 768; }
 
-// ─── Sheet (mobile) ───────────────────────────────────────────────────────────
+// ─── Sheet ────────────────────────────────────────────────────────────────────
 function toggleSheet() {
   document.getElementById('sheet').classList.toggle('open');
 }
-
 function openSheet() {
   document.getElementById('sheet').classList.add('open');
 }
-
 function closeSheet() {
   document.getElementById('sheet').classList.remove('open');
 }
-
 function backToList(e) {
-  if (e) e.stopPropagation();
+  e.stopPropagation();
   document.getElementById('sheet-panels').classList.remove('show-detail');
   document.getElementById('sheet-back').style.display = 'none';
   activeEventId = null;
   renderList(allEvents);
 }
 
-// Close sheet when tapping the map on mobile
 map.on('click', () => { if (isMobile()) closeSheet(); });
 
 // ─── Filters ─────────────────────────────────────────────────────────────────
 function toggleFilters() {
   const panel = document.getElementById('filter-panel');
   const btn   = document.getElementById('filter-btn');
-  panel.classList.toggle('open');
-  btn.classList.toggle('active');
+  const isOpen = panel.classList.toggle('open');
+  btn.classList.toggle('active', isOpen);
+  if (!isOpen) load();
 }
+function closeFilters() {
+  document.getElementById('filter-panel').classList.remove('open');
+  document.getElementById('filter-btn').classList.remove('active');
+}
+
+// On desktop, re-load on every filter change immediately
+['filter-from', 'filter-to', 'filter-area', 'filter-genre'].forEach(id =>
+  document.getElementById(id).addEventListener('change', () => { if (!isMobile()) load(); })
+);
+document.getElementById('filter-search').addEventListener('input', debounce(() => { if (!isMobile()) load(); }, 300));
 
 document.getElementById('filter-from').value = todayStr();
 document.getElementById('filter-to').value   = plusDays(30);
-
-['filter-from', 'filter-to', 'filter-area', 'filter-genre'].forEach(id =>
-  document.getElementById(id).addEventListener('change', load)
-);
-document.getElementById('filter-search').addEventListener('input', debounce(load, 300));
 
 // ─── Bootstrap ───────────────────────────────────────────────────────────────
 async function init() {
@@ -540,8 +483,8 @@ async function loadGenres() {
 async function loadStats() {
   const s = await api('/api/stats');
   document.getElementById('stats-bar').textContent =
-    `${s.events} events · ${s.venuesGeocoded}/${s.venues} venues mapped` +
-    (s.lastFetch ? ` · fetched ${fmtRelative(s.lastFetch)}` : '');
+    `${s.events} events · ${s.venuesGeocoded}/${s.venues} venues` +
+    (s.lastFetch ? ` · ${fmtRelative(s.lastFetch)}` : '');
 }
 
 async function load() {
@@ -564,15 +507,14 @@ async function load() {
 
 // ─── List ─────────────────────────────────────────────────────────────────────
 function renderList(events) {
-  const countText = `${events.length} event${events.length !== 1 ? 's' : ''}`;
-  document.getElementById('sheet-count').textContent = countText;
+  document.getElementById('sheet-count').textContent =
+    `${events.length} event${events.length !== 1 ? 's' : ''}`;
 
   const list = document.getElementById('event-list');
   if (!events.length) {
     list.innerHTML = '<div class="empty-state">No events found for this date range.</div>';
     return;
   }
-
   list.innerHTML = events.map(e => `
     <div class="event-card ${e.id === activeEventId ? 'active' : ''}"
          data-id="${e.id}" onclick="selectEvent('${e.id}')">
@@ -590,28 +532,22 @@ function renderList(events) {
   `).join('');
 }
 
-// ─── Map markers ─────────────────────────────────────────────────────────────
+// ─── Markers ──────────────────────────────────────────────────────────────────
 function loadMapMarkers() {
   markerLayer.clearLayers();
   venueMarkers = {};
-
   const venueMap = new Map();
   for (const e of allEvents) {
     if (!e.lat || !e.lng) continue;
-    if (!venueMap.has(e.venue_id)) {
+    if (!venueMap.has(e.venue_id))
       venueMap.set(e.venue_id, { id: e.venue_id, name: e.venue_name, lat: e.lat, lng: e.lng, count: 0 });
-    }
     venueMap.get(e.venue_id).count++;
   }
-
   for (const v of venueMap.values()) {
     const size = Math.min(8 + v.count * 2, 24);
     const marker = L.circleMarker([v.lat, v.lng], {
-      radius: size / 2,
-      fillColor: '#4a9eff',
-      color: '#1a4a7a',
-      weight: 1.5,
-      fillOpacity: 0.75,
+      radius: size / 2, fillColor: '#4a9eff',
+      color: '#1a4a7a', weight: 1.5, fillOpacity: 0.75,
     });
     marker.bindPopup(`<div class="popup-title">${esc(v.name)}</div><div class="popup-count">${v.count} event${v.count !== 1 ? 's' : ''}</div>`);
     marker.on('click', () => { showVenueEvents(v.id, v.name); if (isMobile()) openSheet(); });
@@ -625,58 +561,52 @@ function showVenueEvents(venueId, venueName) {
   renderList(events);
   document.getElementById('sheet-count').textContent =
     `${events.length} event${events.length !== 1 ? 's' : ''} at ${venueName}`;
-  // Return to list panel if we were in detail
   document.getElementById('sheet-panels').classList.remove('show-detail');
   document.getElementById('sheet-back').style.display = 'none';
 }
 
-// ─── Event detail ─────────────────────────────────────────────────────────────
+// ─── Detail ───────────────────────────────────────────────────────────────────
 function selectEvent(id) {
   activeEventId = id;
   const e = allEvents.find(ev => ev.id === id);
   if (!e) return;
-
   if (e.lat && e.lng) {
     map.setView([e.lat, e.lng], Math.max(map.getZoom(), 14));
-    const marker = venueMarkers[e.venue_id];
-    if (marker) marker.openPopup();
+    venueMarkers[e.venue_id]?.openPopup();
   }
-
   if (isMobile()) {
-    renderDetailContent(e, document.getElementById('detail-content-mobile'));
+    renderDetail(e, document.getElementById('detail-content-mobile'));
     document.getElementById('sheet-panels').classList.add('show-detail');
     document.getElementById('sheet-back').style.display = 'block';
     document.getElementById('sheet-count').textContent = esc(e.title);
     openSheet();
   } else {
     renderList(allEvents);
-    renderDetailContent(e, document.getElementById('detail-content-desktop'));
+    renderDetail(e, document.getElementById('detail-content-desktop'));
     document.getElementById('detail-venue-name').textContent = e.venue_name || '';
     document.getElementById('detail-panel').classList.add('visible');
     document.querySelector(`.event-card[data-id="${id}"]`)?.scrollIntoView({ block: 'nearest' });
   }
 }
 
-function renderDetailContent(e, container) {
+function renderDetail(e, container) {
   const flyer   = e.images?.find(i => i.type === 'FLYERFRONT')?.filename || e.flyer_front;
   const artists = e.artists?.map(a => a.name).join(', ');
-  container.innerHTML = `
-    <div class="detail-content">
-      ${flyer ? `<img class="detail-flyer" src="${esc(flyer)}" alt="Flyer">` : ''}
-      <div class="detail-title">${esc(e.title)}</div>
-      <div class="detail-field"><strong>Date</strong> ${fmtDateLong(e.date)}</div>
-      <div class="detail-field"><strong>Time</strong> ${fmtTime(e.start_time)} – ${fmtTime(e.end_time)}</div>
-      ${e.venue_name    ? `<div class="detail-field"><strong>Venue</strong> ${esc(e.venue_name)}</div>` : ''}
-      ${e.venue_address ? `<div class="detail-field"><strong>Address</strong> ${esc(e.venue_address)}</div>` : ''}
-      ${e.cost          ? `<div class="detail-field"><strong>Cost</strong> ${esc(e.cost)}</div>` : ''}
-      ${artists         ? `<div class="detail-field"><strong>Artists</strong> ${esc(artists)}</div>` : ''}
-      ${e.lineup        ? `<div class="detail-field"><strong>Lineup</strong> ${esc(e.lineup)}</div>` : ''}
-      ${e.genres?.length ? `<div class="detail-field"><strong>Genres</strong> ${e.genres.map(g => g.name).join(', ')}</div>` : ''}
-      ${e.attending     ? `<div class="detail-field"><strong>Attending</strong> ${e.attending}</div>` : ''}
-      ${e.content       ? `<div class="detail-field" style="color:#666;font-size:0.72rem;margin-top:8px">${esc(e.content).slice(0, 300)}${e.content.length > 300 ? '…' : ''}</div>` : ''}
-      ${e.content_url   ? `<a class="detail-link" href="https://ra.co${e.content_url}" target="_blank" rel="noopener">View on RA →</a>` : ''}
-    </div>
-  `;
+  container.innerHTML = `<div class="detail-inner">
+    ${flyer ? `<img class="detail-flyer" src="${esc(flyer)}" alt="Flyer">` : ''}
+    <div class="detail-title">${esc(e.title)}</div>
+    <div class="detail-field"><strong>Date</strong> ${fmtDateLong(e.date)}</div>
+    <div class="detail-field"><strong>Time</strong> ${fmtTime(e.start_time)} – ${fmtTime(e.end_time)}</div>
+    ${e.venue_name    ? `<div class="detail-field"><strong>Venue</strong> ${esc(e.venue_name)}</div>` : ''}
+    ${e.venue_address ? `<div class="detail-field"><strong>Address</strong> ${esc(e.venue_address)}</div>` : ''}
+    ${e.cost          ? `<div class="detail-field"><strong>Cost</strong> ${esc(e.cost)}</div>` : ''}
+    ${artists         ? `<div class="detail-field"><strong>Artists</strong> ${esc(artists)}</div>` : ''}
+    ${e.lineup        ? `<div class="detail-field"><strong>Lineup</strong> ${esc(e.lineup)}</div>` : ''}
+    ${e.genres?.length ? `<div class="detail-field"><strong>Genres</strong> ${e.genres.map(g => g.name).join(', ')}</div>` : ''}
+    ${e.attending     ? `<div class="detail-field"><strong>Attending</strong> ${e.attending}</div>` : ''}
+    ${e.content       ? `<div class="detail-field" style="color:#666;font-size:0.72rem;margin-top:8px">${esc(e.content).slice(0, 300)}${e.content.length > 300 ? '…' : ''}</div>` : ''}
+    ${e.content_url   ? `<a class="detail-link" href="https://ra.co${e.content_url}" target="_blank" rel="noopener">View on RA →</a>` : ''}
+  </div>`;
 }
 
 function closeDetail() {
@@ -685,24 +615,18 @@ function closeDetail() {
   renderList(allEvents);
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 async function api(url) {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`API error ${res.status}`);
   return res.json();
 }
-
 function esc(s) {
   if (!s) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-
 function todayStr() { return new Date().toISOString().slice(0, 10); }
-function plusDays(n) {
-  const d = new Date(); d.setDate(d.getDate() + n);
-  return d.toISOString().slice(0, 10);
-}
-
+function plusDays(n) { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); }
 function fmtDate(iso) {
   if (!iso) return '';
   return new Date(iso).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
@@ -719,7 +643,7 @@ function fmtRelative(iso) {
   const h = Math.floor((Date.now() - new Date(iso)) / 3600000);
   if (h < 1) return 'just now';
   if (h < 24) return `${h}h ago`;
-  return `${Math.floor(h/24)}d ago`;
+  return `${Math.floor(h / 24)}d ago`;
 }
 function debounce(fn, ms) {
   let t;
