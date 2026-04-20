@@ -1,3 +1,5 @@
+import { sleep } from './utils.js';
+
 const RA_GRAPHQL = 'https://ra.co/graphql';
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36';
 
@@ -74,6 +76,3 @@ export async function fetchAllEvents({ areaId, dateFrom, dateTo, pageSize = 100,
   return all;
 }
 
-function sleep(ms) {
-  return new Promise(r => setTimeout(r, ms));
-}

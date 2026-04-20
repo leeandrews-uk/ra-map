@@ -118,8 +118,9 @@ async function scheduled(event, env) {
 
   console.log(`Scheduled fetch: ${dateFrom} → ${dateTo}`);
 
+  // INSERT OR IGNORE + UPDATE preserves geocoded lat/lng; INSERT OR REPLACE would delete the row first
   const upsertVenue = DB.prepare(`
-    INSERT OR REPLACE INTO venues (id, name, address, content_url, area_name, country_name, fetched_at)
+    INSERT INTO venues (id, name, address, content_url, area_name, country_name, fetched_at)
     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)
     ON CONFLICT(id) DO UPDATE SET
       name=excluded.name, address=excluded.address, fetched_at=excluded.fetched_at

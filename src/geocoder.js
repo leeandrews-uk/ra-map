@@ -1,3 +1,5 @@
+import { sleep } from './utils.js';
+
 const NOMINATIM = 'https://nominatim.openstreetmap.org/search';
 const UA = 'ra-map/1.0 (personal project)';
 
@@ -38,6 +40,3 @@ export async function geocodeVenues(DB) {
   console.log(`Geocoded ${done}/${ungeocoded.length} venues.`);
 }
 
-function sleep(ms) {
-  return new Promise(r => setTimeout(r, ms));
-}

@@ -395,7 +395,7 @@ async function load() {
 
   allEvents = await api('/api/events?' + params);
   renderList(allEvents);
-  await loadMapMarkers();
+  loadMapMarkers();
 }
 
 // ─── Sidebar list ─────────────────────────────────────────────────────────────
@@ -427,22 +427,22 @@ function renderList(events) {
 }
 
 // ─── Map markers ─────────────────────────────────────────────────────────────
-async function loadMapMarkers() {
-  const params = new URLSearchParams();
-  const from = document.getElementById('filter-from').value;
-  const to   = document.getElementById('filter-to').value;
-  if (from) params.set('from', from);
-  if (to)   params.set('to', to);
-
-  const venues = await api('/api/venues?' + params);
+function loadMapMarkers() {
   markerLayer.clearLayers();
   venueMarkers = {};
 
-  venues.forEach(v => {
-    const eventCount = allEvents.filter(e => e.venue_id === v.id).length;
-    if (eventCount === 0) return;
+  // Build venue summary from allEvents — avoids a second API call
+  const venueMap = new Map();
+  for (const e of allEvents) {
+    if (!e.lat || !e.lng) continue;
+    if (!venueMap.has(e.venue_id)) {
+      venueMap.set(e.venue_id, { id: e.venue_id, name: e.venue_name, lat: e.lat, lng: e.lng, count: 0 });
+    }
+    venueMap.get(e.venue_id).count++;
+  }
 
-    const size = Math.min(8 + eventCount * 2, 24);
+  for (const v of venueMap.values()) {
+    const size = Math.min(8 + v.count * 2, 24);
     const marker = L.circleMarker([v.lat, v.lng], {
       radius: size / 2,
       fillColor: '#4a9eff',
@@ -453,13 +453,13 @@ async function loadMapMarkers() {
 
     marker.bindPopup(`
       <div class="popup-title">${esc(v.name)}</div>
-      <div class="popup-count">${eventCount} event${eventCount !== 1 ? 's' : ''}</div>
+      <div class="popup-count">${v.count} event${v.count !== 1 ? 's' : ''}</div>
     `);
 
     marker.on('click', () => showVenueEvents(v.id, v.name));
     markerLayer.addLayer(marker);
     venueMarkers[v.id] = marker;
-  });
+  }
 }
 
 function showVenueEvents(venueId, venueName) {
