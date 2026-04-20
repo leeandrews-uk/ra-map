@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>RA Map</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
@@ -126,35 +126,52 @@
 
     #map { width: 100%; height: 100%; }
 
+    /* ─── Floating events button (mobile only) ──────────────────── */
+    #events-fab {
+      position: fixed;
+      bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+      left: 50%;
+      transform: translateX(-50%);
+      background: #4a9eff;
+      color: #fff;
+      border: none;
+      border-radius: 24px;
+      padding: 12px 24px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      z-index: 410;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+      cursor: pointer;
+      white-space: nowrap;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #events-fab:active { background: #2a7fd4; }
+
     /* ─── Bottom sheet ───────────────────────────────────────────── */
     #sheet {
       position: fixed;
       bottom: 0; left: 0; right: 0;
-      height: 72vh;
+      height: 80vh;
       background: #0f0f0f;
       border-top: 1px solid #2a2a2a;
       border-radius: 14px 14px 0 0;
       z-index: 400;
       display: flex;
       flex-direction: column;
-      transform: translateY(calc(100% - 54px));
+      transform: translateY(100%);
       transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     #sheet.open { transform: translateY(0); }
 
-    /* The visible peek strip — entire thing is the tap target */
     #sheet-peek {
       flex-shrink: 0;
-      height: 54px;
+      height: 50px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 16px;
-      cursor: pointer;
-      touch-action: manipulation;
-      -webkit-tap-highlight-color: transparent;
     }
-    #sheet-peek:active { background: rgba(255,255,255,0.03); }
 
     .sheet-pill {
       width: 36px; height: 4px;
@@ -171,13 +188,6 @@
       font-weight: 500;
     }
 
-    .sheet-chevron {
-      font-size: 1rem;
-      color: #555;
-      transition: transform 0.3s;
-    }
-    #sheet.open .sheet-chevron { transform: rotate(180deg); }
-
     #sheet-back {
       background: none;
       border: none;
@@ -187,6 +197,18 @@
       padding: 4px 0;
       display: none;
       touch-action: manipulation;
+    }
+
+    #sheet-close {
+      background: none;
+      border: none;
+      color: #666;
+      font-size: 1.3rem;
+      cursor: pointer;
+      padding: 4px;
+      line-height: 1;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
 
     /* Two panels slide horizontally: list → detail */
@@ -261,6 +283,8 @@
 
       .filter-btn  { display: none; }
       .stats-bar   { display: block; }
+      #events-fab  { display: none; }
+      #sheet-close { display: none; }
 
       /* Filters always visible as a bar */
       #filter-panel {
@@ -370,13 +394,17 @@
   </div>
 </div>
 
+<button id="events-fab" onclick="openSheet()">
+  Show events — <span id="fab-count">…</span>
+</button>
+
 <div class="main">
   <div id="sheet">
-    <div id="sheet-peek" onclick="toggleSheet()">
+    <div id="sheet-peek">
       <div class="sheet-pill"></div>
-      <span id="sheet-count">Loading…</span>
       <button id="sheet-back" onclick="backToList(event)">← List</button>
-      <span class="sheet-chevron">▲</span>
+      <span id="sheet-count"></span>
+      <button id="sheet-close" onclick="closeSheet()">✕</button>
     </div>
     <div class="sheet-body">
       <div class="sheet-panels" id="sheet-panels">
@@ -413,14 +441,13 @@ const markerLayer = L.layerGroup().addTo(map);
 function isMobile() { return window.innerWidth < 768; }
 
 // ─── Sheet ────────────────────────────────────────────────────────────────────
-function toggleSheet() {
-  document.getElementById('sheet').classList.toggle('open');
-}
 function openSheet() {
   document.getElementById('sheet').classList.add('open');
+  document.getElementById('events-fab').style.display = 'none';
 }
 function closeSheet() {
   document.getElementById('sheet').classList.remove('open');
+  if (isMobile()) document.getElementById('events-fab').style.display = '';
 }
 function backToList(e) {
   e.stopPropagation();
@@ -507,8 +534,9 @@ async function load() {
 
 // ─── List ─────────────────────────────────────────────────────────────────────
 function renderList(events) {
-  document.getElementById('sheet-count').textContent =
-    `${events.length} event${events.length !== 1 ? 's' : ''}`;
+  const countText = `${events.length} event${events.length !== 1 ? 's' : ''}`;
+  document.getElementById('sheet-count').textContent = countText;
+  document.getElementById('fab-count').textContent = countText;
 
   const list = document.getElementById('event-list');
   if (!events.length) {
@@ -578,7 +606,7 @@ function selectEvent(id) {
     renderDetail(e, document.getElementById('detail-content-mobile'));
     document.getElementById('sheet-panels').classList.add('show-detail');
     document.getElementById('sheet-back').style.display = 'block';
-    document.getElementById('sheet-count').textContent = esc(e.title);
+    document.getElementById('sheet-count').textContent = esc(e.venue_name || e.title);
     openSheet();
   } else {
     renderList(allEvents);
