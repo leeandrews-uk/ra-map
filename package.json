@@ -1,0 +1,16 @@
+{
+  "name": "ra-map",
+  "version": "1.0.0",
+  "description": "RA events map for London/UK",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "hono": "^4.4.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.84.0"
+  }
+}

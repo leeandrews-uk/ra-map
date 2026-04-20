@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RA Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0a;
+      color: #e0e0e0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: #111;
+      border-bottom: 1px solid #222;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+
+    header h1 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .filters {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      flex: 1;
+    }
+
+    .filters input, .filters select {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      color: #e0e0e0;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      height: 30px;
+    }
+
+    .filters input[type="date"] { width: 130px; }
+    .filters input[type="search"] { width: 160px; }
+    .filters select { min-width: 120px; }
+
+    .filters label {
+      font-size: 0.75rem;
+      color: #888;
+      white-space: nowrap;
+    }
+
+    .filter-group { display: flex; align-items: center; gap: 5px; }
+
+    button.refresh-btn {
+      background: #1d1d1d;
+      border: 1px solid #444;
+      color: #ccc;
+      padding: 5px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      height: 30px;
+    }
+    button.refresh-btn:hover { background: #2a2a2a; }
+
+    .stats-bar {
+      font-size: 0.7rem;
+      color: #555;
+      white-space: nowrap;
+    }
+
+    .main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Sidebar */
+    #sidebar {
+      width: 340px;
+      flex-shrink: 0;
+      background: #0f0f0f;
+      border-right: 1px solid #1e1e1e;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar-header {
+      padding: 10px 12px;
+      border-bottom: 1px solid #1e1e1e;
+      font-size: 0.75rem;
+      color: #666;
+    }
+
+    #event-list {
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .event-card {
+      padding: 10px 12px;
+      border-bottom: 1px solid #1a1a1a;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+
+    .event-card:hover { background: #161616; }
+    .event-card.active { background: #1a1a2e; border-left: 3px solid #4a9eff; }
+
+    .event-card .event-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #eee;
+      margin-bottom: 3px;
+      line-height: 1.3;
+    }
+
+    .event-card .event-meta {
+      font-size: 0.72rem;
+      color: #666;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .event-card .venue-name { color: #888; }
+
+    .event-card .event-date { color: #557a9f; }
+
+    .event-card .event-tags {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .tag {
+      background: #1e1e1e;
+      border: 1px solid #2a2a2a;
+      color: #777;
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-size: 0.68rem;
+    }
+
+    .tag.attending { color: #4a9eff; border-color: #1a3a5c; background: #0d1e2e; }
+
+    /* Map */
+    #map {
+      flex: 1;
+    }
+
+    /* Event detail panel */
+    #detail-panel {
+      position: absolute;
+      top: 70px;
+      right: 16px;
+      width: 320px;
+      background: #111;
+      border: 1px solid #2a2a2a;
+      border-radius: 6px;
+      z-index: 1000;
+      max-height: calc(100vh - 90px);
+      overflow-y: auto;
+      display: none;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    }
+
+    #detail-panel.visible { display: block; }
+
+    .detail-close {
+      position: sticky;
+      top: 0;
+      background: #111;
+      padding: 8px 12px;
+      border-bottom: 1px solid #1e1e1e;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .detail-close button {
+      background: none;
+      border: none;
+      color: #666;
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 0 4px;
+    }
+
+    .detail-content { padding: 12px; }
+
+    .detail-flyer {
+      width: 100%;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+
+    .detail-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .detail-field {
+      font-size: 0.78rem;
+      color: #888;
+      margin-bottom: 6px;
+      line-height: 1.5;
+    }
+
+    .detail-field strong { color: #bbb; }
+
+    .detail-link {
+      display: inline-block;
+      margin-top: 8px;
+      color: #4a9eff;
+      font-size: 0.8rem;
+      text-decoration: none;
+    }
+
+    .detail-link:hover { text-decoration: underline; }
+
+    /* Leaflet popup override */
+    .leaflet-popup-content-wrapper {
+      background: #111;
+      color: #e0e0e0;
+      border: 1px solid #2a2a2a;
+      border-radius: 4px;
+    }
+
+    .leaflet-popup-tip { background: #111; }
+
+    .popup-title { font-weight: 700; font-size: 0.85rem; margin-bottom: 4px; }
+    .popup-count { font-size: 0.75rem; color: #888; }
+
+    .empty-state {
+      padding: 24px 12px;
+      text-align: center;
+      color: #444;
+      font-size: 0.8rem;
+    }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: #0a0a0a; }
+    ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>RA MAP</h1>
+  <div class="filters">
+    <div class="filter-group">
+      <label>From</label>
+      <input type="date" id="filter-from">
+    </div>
+    <div class="filter-group">
+      <label>To</label>
+      <input type="date" id="filter-to">
+    </div>
+    <div class="filter-group">
+      <label>Area</label>
+      <select id="filter-area">
+        <option value="">All areas</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Genre</label>
+      <select id="filter-genre">
+        <option value="">All genres</option>
+      </select>
+    </div>
+    <input type="search" id="filter-search" placeholder="Search title / lineup / venue">
+    <button class="refresh-btn" onclick="load()">Refresh</button>
+  </div>
+  <div class="stats-bar" id="stats-bar"></div>
+</header>
+
+<div class="main">
+  <div id="sidebar">
+    <div class="sidebar-header" id="sidebar-count">Loading…</div>
+    <div id="event-list"></div>
+  </div>
+  <div id="map"></div>
+</div>
+
+<div id="detail-panel">
+  <div class="detail-close">
+    <span id="detail-venue-name" style="font-size:0.75rem;color:#666"></span>
+    <button onclick="closeDetail()">✕</button>
+  </div>
+  <div class="detail-content" id="detail-content"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ─── Map setup ───────────────────────────────────────────────────────────────
+const map = L.map('map').setView([51.505, -0.09], 11);
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OpenStreetMap &copy; CARTO',
+  maxZoom: 19,
+}).addTo(map);
+
+// ─── State ───────────────────────────────────────────────────────────────────
+let allEvents = [];
+let venueMarkers = {};
+let activeEventId = null;
+let markerLayer = L.layerGroup().addTo(map);
+
+// ─── Filters ─────────────────────────────────────────────────────────────────
+function todayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+function plusDays(n) {
+  const d = new Date();
+  d.setDate(d.getDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+
+document.getElementById('filter-from').value = todayStr();
+document.getElementById('filter-to').value = plusDays(30);
+
+['filter-from', 'filter-to', 'filter-area', 'filter-genre'].forEach(id => {
+  document.getElementById(id).addEventListener('change', load);
+});
+document.getElementById('filter-search').addEventListener('input', debounce(load, 300));
+
+// ─── Bootstrap ───────────────────────────────────────────────────────────────
+async function init() {
+  await Promise.all([loadAreas(), loadGenres(), loadStats()]);
+  await load();
+}
+
+async function loadAreas() {
+  const areas = await api('/api/areas');
+  const sel = document.getElementById('filter-area');
+  areas.forEach(a => {
+    const opt = document.createElement('option');
+    opt.value = a.id;
+    opt.textContent = a.name;
+    sel.appendChild(opt);
+  });
+}
+
+async function loadGenres() {
+  const genres = await api('/api/genres');
+  const sel = document.getElementById('filter-genre');
+  genres.forEach(g => {
+    const opt = document.createElement('option');
+    opt.value = g.name;
+    opt.textContent = g.name;
+    sel.appendChild(opt);
+  });
+}
+
+async function loadStats() {
+  const s = await api('/api/stats');
+  document.getElementById('stats-bar').textContent =
+    `${s.events} events · ${s.venuesGeocoded}/${s.venues} venues mapped` +
+    (s.lastFetch ? ` · fetched ${fmtRelative(s.lastFetch)}` : '');
+}
+
+async function load() {
+  const params = new URLSearchParams();
+  const from   = document.getElementById('filter-from').value;
+  const to     = document.getElementById('filter-to').value;
+  const area   = document.getElementById('filter-area').value;
+  const genre  = document.getElementById('filter-genre').value;
+  const search = document.getElementById('filter-search').value;
+
+  if (from)   params.set('from', from);
+  if (to)     params.set('to', to);
+  if (area)   params.set('area', area);
+  if (genre)  params.set('genre', genre);
+  if (search) params.set('search', search);
+
+  allEvents = await api('/api/events?' + params);
+  renderList(allEvents);
+  await loadMapMarkers();
+}
+
+// ─── Sidebar list ─────────────────────────────────────────────────────────────
+function renderList(events) {
+  const list = document.getElementById('event-list');
+  document.getElementById('sidebar-count').textContent = `${events.length} event${events.length !== 1 ? 's' : ''}`;
+
+  if (!events.length) {
+    list.innerHTML = '<div class="empty-state">No events found.<br>Try fetching data first:<br><code>node scripts/fetch-events.js</code></div>';
+    return;
+  }
+
+  list.innerHTML = events.map(e => `
+    <div class="event-card ${e.id === activeEventId ? 'active' : ''}"
+         data-id="${e.id}"
+         onclick="selectEvent('${e.id}')">
+      <div class="event-title">${esc(e.title)}</div>
+      <div class="event-meta">
+        <span class="event-date">${fmtDate(e.date)} · ${fmtTime(e.start_time)}</span>
+        <span class="venue-name">${esc(e.venue_name || 'Unknown venue')}</span>
+      </div>
+      <div class="event-tags">
+        ${e.genres.slice(0, 3).map(g => `<span class="tag">${esc(g.name)}</span>`).join('')}
+        ${e.attending ? `<span class="tag attending">↑${e.attending}</span>` : ''}
+        ${e.cost ? `<span class="tag">${esc(e.cost)}</span>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─── Map markers ─────────────────────────────────────────────────────────────
+async function loadMapMarkers() {
+  const params = new URLSearchParams();
+  const from = document.getElementById('filter-from').value;
+  const to   = document.getElementById('filter-to').value;
+  if (from) params.set('from', from);
+  if (to)   params.set('to', to);
+
+  const venues = await api('/api/venues?' + params);
+  markerLayer.clearLayers();
+  venueMarkers = {};
+
+  venues.forEach(v => {
+    const eventCount = allEvents.filter(e => e.venue_id === v.id).length;
+    if (eventCount === 0) return;
+
+    const size = Math.min(8 + eventCount * 2, 24);
+    const marker = L.circleMarker([v.lat, v.lng], {
+      radius: size / 2,
+      fillColor: '#4a9eff',
+      color: '#1a4a7a',
+      weight: 1.5,
+      fillOpacity: 0.75,
+    });
+
+    marker.bindPopup(`
+      <div class="popup-title">${esc(v.name)}</div>
+      <div class="popup-count">${eventCount} event${eventCount !== 1 ? 's' : ''}</div>
+    `);
+
+    marker.on('click', () => showVenueEvents(v.id, v.name));
+    markerLayer.addLayer(marker);
+    venueMarkers[v.id] = marker;
+  });
+}
+
+function showVenueEvents(venueId, venueName) {
+  const events = allEvents.filter(e => e.venue_id === venueId);
+  renderList(events);
+  document.getElementById('sidebar-count').textContent =
+    `${events.length} event${events.length !== 1 ? 's' : ''} at ${venueName}`;
+}
+
+// ─── Event detail ─────────────────────────────────────────────────────────────
+function selectEvent(id) {
+  activeEventId = id;
+  renderList(allEvents); // re-render to update active state
+
+  const e = allEvents.find(ev => ev.id === id);
+  if (!e) return;
+
+  // Scroll to venue on map
+  if (e.lat && e.lng) {
+    map.setView([e.lat, e.lng], Math.max(map.getZoom(), 14));
+    const marker = venueMarkers[e.venue_id];
+    if (marker) marker.openPopup();
+  }
+
+  showDetail(e);
+
+  // Scroll card into view
+  document.querySelector(`.event-card[data-id="${id}"]`)?.scrollIntoView({ block: 'nearest' });
+}
+
+function showDetail(e) {
+  const flyer = e.images?.find(i => i.type === 'FLYERFRONT')?.filename || e.flyer_front;
+  const artists = e.artists?.map(a => a.name).join(', ');
+
+  document.getElementById('detail-venue-name').textContent = e.venue_name || '';
+  document.getElementById('detail-content').innerHTML = `
+    ${flyer ? `<img class="detail-flyer" src="${esc(flyer)}" alt="Flyer">` : ''}
+    <div class="detail-title">${esc(e.title)}</div>
+    <div class="detail-field"><strong>Date</strong> ${fmtDateLong(e.date)}</div>
+    <div class="detail-field"><strong>Time</strong> ${fmtTime(e.start_time)} – ${fmtTime(e.end_time)}</div>
+    ${e.venue_name ? `<div class="detail-field"><strong>Venue</strong> ${esc(e.venue_name)}</div>` : ''}
+    ${e.venue_address ? `<div class="detail-field"><strong>Address</strong> ${esc(e.venue_address)}</div>` : ''}
+    ${e.cost ? `<div class="detail-field"><strong>Cost</strong> ${esc(e.cost)}</div>` : ''}
+    ${artists ? `<div class="detail-field"><strong>Artists</strong> ${esc(artists)}</div>` : ''}
+    ${e.lineup ? `<div class="detail-field"><strong>Lineup</strong> ${esc(e.lineup)}</div>` : ''}
+    ${e.genres?.length ? `<div class="detail-field"><strong>Genres</strong> ${e.genres.map(g => g.name).join(', ')}</div>` : ''}
+    ${e.attending ? `<div class="detail-field"><strong>Attending</strong> ${e.attending}</div>` : ''}
+    ${e.content ? `<div class="detail-field" style="color:#666;font-size:0.72rem;margin-top:8px">${esc(e.content).slice(0, 300)}${e.content.length > 300 ? '…' : ''}</div>` : ''}
+    ${e.content_url ? `<a class="detail-link" href="https://ra.co${e.content_url}" target="_blank" rel="noopener">View on RA →</a>` : ''}
+  `;
+
+  document.getElementById('detail-panel').classList.add('visible');
+}
+
+function closeDetail() {
+  document.getElementById('detail-panel').classList.remove('visible');
+  activeEventId = null;
+  renderList(allEvents);
+}
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+async function api(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`API error ${res.status}`);
+  return res.json();
+}
+
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+}
+
+function fmtDateLong(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function fmtTime(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+}
+
+function fmtRelative(iso) {
+  const diff = Date.now() - new Date(iso);
+  const h = Math.floor(diff / 3600000);
+  if (h < 1) return 'just now';
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h/24)}d ago`;
+}
+
+function debounce(fn, ms) {
+  let t;
+  return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+}
+
+init();
+</script>
+</body>
+</html>
